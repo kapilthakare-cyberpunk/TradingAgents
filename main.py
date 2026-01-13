@@ -1,3 +1,5 @@
+from colorama import Fore, Style, init
+init(autoreset=True)
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.llm.llm_engine import LLMEngine
@@ -30,14 +32,14 @@ ta = TradingAgentsGraph(debug=True, config=config, llm=llm)
 # =============================
 # 🔹 LIVE ANALYSIS (Debate Mode)
 # =============================
-print("\n=== LIVE ANALYSIS (AI DEBATE) ===")
+print(f"\n{Fore.LIGHTMAGENTA_EX}=== LIVE ANALYSIS (AI DEBATE) ==={Style.RESET_ALL}")
 _, decision = ta.propagate("NVDA", "2024-05-10")
 print("\nFinal Decision:\n", decision)
 
 # =============================
 # 🔹 BACKTESTING MODE
 # =============================
-print("\n=== BACKTESTING MODE ===")
+print(f"\n{Fore.LIGHTBLUE_EX}=== BACKTESTING MODE ==={Style.RESET_ALL}")
 
 bt = Backtester(ta, initial_capital=100000)
 results = bt.run("NVDA", "2024-01-01", "2024-06-01")
@@ -54,3 +56,8 @@ print("\nPerformance Metrics:")
 for k, v in metrics.items():
     print(f"{k}: {v}")
 
+
+print(f"\n{Fore.LIGHTCYAN_EX}=== PAPER TRADING MODE ==={Style.RESET_ALL}")
+
+paper = PaperTrader(ta, "NVDA", capital=100000)
+paper.run(interval=300)  # every 5 minutes

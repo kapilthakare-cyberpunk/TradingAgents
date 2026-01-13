@@ -1,0 +1,20 @@
+{
+  "capital": 100000,
+  "position": 0,
+  "trade_log": [
+    {
+      "time": "2026-01-14T02:23:45.752124",
+      "price": 184.88999938964844,
+      "action": "HOLD",
+      "capital": 100000,
+      "position": 0
+    },
+    {
+      "time": "2026-01-14T03:04:40.986706",
+      "price": 185.82000732421875,
+      "action": "HOLD",
+      "capital": 100000,
+      "position": 0
+    }
+  ]
+}
