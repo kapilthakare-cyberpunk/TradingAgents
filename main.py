@@ -1,31 +1,56 @@
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
-
+from tradingagents.llm.llm_engine import LLMEngine
+from tradingagents.backtest.backtester import Backtester
+from tradingagents.backtest.metrics import compute_metrics
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
 # Create a custom config
 config = DEFAULT_CONFIG.copy()
-config["deep_think_llm"] = "gpt-4o-mini"  # Use a different model
-config["quick_think_llm"] = "gpt-4o-mini"  # Use a different model
-config["max_debate_rounds"] = 1  # Increase debate rounds
+config["deep_think_llm"] = "gpt-4o-mini"
+config["quick_think_llm"] = "gpt-4o-mini"
+config["max_debate_rounds"] = 1
 
-# Configure data vendors (default uses yfinance and alpha_vantage)
 config["data_vendors"] = {
-    "core_stock_apis": "yfinance",           # Options: yfinance, alpha_vantage, local
-    "technical_indicators": "yfinance",      # Options: yfinance, alpha_vantage, local
-    "fundamental_data": "alpha_vantage",     # Options: openai, alpha_vantage, local
-    "news_data": "alpha_vantage",            # Options: openai, alpha_vantage, google, local
+    "core_stock_apis": "yfinance",
+    "technical_indicators": "yfinance",
+    "fundamental_data": "alpha_vantage",
+    "news_data": "alpha_vantage",
 }
 
-# Initialize with custom config
-ta = TradingAgentsGraph(debug=True, config=config)
+# Initialize LLM
+llm = LLMEngine(model="gpt-4o-mini")
 
-# forward propagate
+# Initialize Trading Agent (now supports multi-agent debate internally)
+ta = TradingAgentsGraph(debug=True, config=config, llm=llm)
+
+# =============================
+# 🔹 LIVE ANALYSIS (Debate Mode)
+# =============================
+print("\n=== LIVE ANALYSIS (AI DEBATE) ===")
 _, decision = ta.propagate("NVDA", "2024-05-10")
-print(decision)
+print("\nFinal Decision:\n", decision)
 
-# Memorize mistakes and reflect
-# ta.reflect_and_remember(1000) # parameter is the position returns
+# =============================
+# 🔹 BACKTESTING MODE
+# =============================
+print("\n=== BACKTESTING MODE ===")
+
+bt = Backtester(ta, initial_capital=100000)
+results = bt.run("NVDA", "2024-01-01", "2024-06-01")
+
+final = results[-1]
+print("\nBacktest Result:")
+print("Final Capital:", round(final["capital"], 2))
+print("Open Position:", final["position"])
+
+# Compute and display performance metrics
+metrics = compute_metrics(results, initial_capital=100000)
+
+print("\nPerformance Metrics:")
+for k, v in metrics.items():
+    print(f"{k}: {v}")
+
